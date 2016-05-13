@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>Service Bus - Tester</title>
+	<script	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"	type="text/javascript"></script>
+	<script	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular-resource.js"	type="text/javascript"></script>
+	<script src="controller.js" type="text/javascript"></script>
+	
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+</head>
+
+<body ng-app="service-bus-ui">
+
+		<br/>
+  			<h1>&nbsp; Service Bus<small> &nbsp; tester</small></h1>
+  			
+  		<br/><br/>	
+
+		<div ng-controller="GetPolicyData" class="container">
+	
+		<div class="well">
+		<label for="policyNum" >Policy Number</label>
+		<input id="policyNum" type="text" class="form-control" style="width:30%;" ng-model="policyNum"> &nbsp; <br/>
+		
+		<button type="button" class="btn btn-default" ng-click="getData()" aria-label="Left Align">
+  			<span class="glyphicon glyphicon-option-vertical glyphicon-align-left" aria-hidden="true"> Search &nbsp; </span>
+		</button>
+		
+		&nbsp;
+		
+		<button type="button" class="btn btn-default" ng-click="reset()" aria-label="Left Align">
+  			<span class="glyphicon glyphicon-remove-circle glyphicon-align-left" aria-hidden="true"> Clear &nbsp; </span>
+		</button>
+		
+		
+		</div>
+
+		<br/>
+		<table class="table table-striped"  ng-show="showData">
+			
+			<tr>
+				<td>Policy Number</td>
+				<td>{{policydata.policyNumber}}</td>
+			</tr>
+		
+			<tr>
+				<td>Role</td>
+				<td>{{policydata.role}}</td>
+			</tr>
+			
+			<tr>
+				<td>Last Premium Paid</td>
+				<td>{{policydata.lastPremiumPaid}}</td>
+			</tr>
+			
+			<tr>
+				<td>Status</td>
+				<td>{{policydata.status}}</td>
+			</tr>
+			
+			<tr>
+				<td>Source</td>
+				<td>{{policydata.source}}</td>
+			</tr>
+
+		</table>
+
+	</div>
+
+	</div>
+
+</body>
+</html>
