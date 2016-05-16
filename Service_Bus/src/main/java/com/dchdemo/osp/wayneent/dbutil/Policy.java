@@ -3,7 +3,6 @@ package com.dchdemo.osp.wayneent.dbutil;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-//@XmlType( namespace="http://www.origostandards.com/schema/mth/v2", name="mtg" )
 @XmlRootElement
 public class Policy {
 

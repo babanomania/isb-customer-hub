@@ -20,7 +20,7 @@ import org.apache.camel.main.Main;
 
 import com.dchdemo.isb.hub.config.ServiceBusConfigFactory;
 import com.dchdemo.isb.hub.dynamics.AccountsBeanFactory;
-import com.dchdemo.isb.hub.routes.RestRouteBuilder;
+import com.dchdemo.isb.hub.routes.MasterRouteBuilder;
 
 public final class ServiceBusMain {
 
@@ -32,7 +32,7 @@ public final class ServiceBusMain {
         Main main = new Main();
         main.bind("configFactory", new ServiceBusConfigFactory());
         main.bind("accountsBeanFactory", new AccountsBeanFactory());
-        main.addRouteBuilder(new RestRouteBuilder());
+        main.addRouteBuilder(new MasterRouteBuilder());
         main.run();
     }
 }

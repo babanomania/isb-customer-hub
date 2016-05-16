@@ -19,15 +19,21 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.apache.camel</groupId>
-    <artifactId>examples</artifactId>
-    <version>2.17.0</version>
-  </parent>
-
   <artifactId>customer-hub-isb</artifactId>
+  <groupId>com.dchdemo.isb.hub</groupId>
   <name>Customer Hub ISB</name>
-  <description>a camel router implementation</description>
+  <description>a camel based router implementation</description>
+  <version>1.0.0</version>
+
+  <properties>
+		<camel-version>2.17.0</camel-version>
+		<adal4j-version>1.1.1</adal4j-version>
+		<oauth2-oidc-version>4.5</oauth2-oidc-version>
+		<http-comp-version>4.5.2</http-comp-version>
+		<activemq-camel-version>5.6.0</activemq-camel-version>
+		<log4j-version>1.2.17</log4j-version>
+		<slf4j-version>1.7.21</slf4j-version>
+  </properties>
 
   <dependencies>
 
@@ -35,66 +41,92 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
+      <version>${camel-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spark-rest</artifactId>
+      <version>${camel-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-swagger-java</artifactId>
+      <version>${camel-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-http</artifactId>
+      <version>${camel-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jetty</artifactId>
+      <version>${camel-version}</version>
     </dependency>
 	<dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-stream</artifactId>
+      <version>${camel-version}</version>
     </dependency>
 
     <!-- use for json binding -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jackson</artifactId>
+      <version>${camel-version}</version>
     </dependency>
     
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jaxb</artifactId>
+      <version>${camel-version}</version>
     </dependency>
 
     <!-- logging -->
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
+      <version>${log4j-version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
+      <version>${slf4j-version}</version>
     </dependency>
     
     <!-- Microsoft Dynamics CRM -->
     <dependency>
         <groupId>com.microsoft.azure</groupId>
         <artifactId>adal4j</artifactId>
-        <version>1.1.1</version>
+        <version>${adal4j-version}</version>
     </dependency>
     <dependency>
         <groupId>com.nimbusds</groupId>
         <artifactId>oauth2-oidc-sdk</artifactId>
-        <version>4.5</version>
+        <version>${oauth2-oidc-version}</version>
         <type>jar</type>
     </dependency>
-
 	<dependency>
 		<groupId>org.apache.httpcomponents</groupId>
 		<artifactId>httpclient</artifactId>
-		<version>4.5.2</version>
+		<version>${http-comp-version}</version>
+	</dependency>
+		
+	<!-- Active MQ -->	
+	<dependency>
+	    <groupId>org.apache.camel</groupId>
+	    <artifactId>camel-jms</artifactId>
+	    <version>${camel-version}</version>
+	</dependency>
+	<dependency>
+	   <groupId>org.apache.activemq</groupId>
+	   <artifactId>activemq-camel</artifactId>
+	   <version>${activemq-camel-version}</version>
+	</dependency>
+	<dependency>
+	   <groupId>org.apache.activemq</groupId>
+	   <artifactId>activemq-pool</artifactId>
+	   <version>${activemq-camel-version}</version>
 	</dependency>
 		
   </dependencies>
@@ -112,19 +144,26 @@
         </configuration>
       </plugin>
       <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.4</version>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals><goal>copy-dependencies</goal></goals>
-                    </execution>
-                </executions>
-            </plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <executions>
+              <execution>
+                  <id>copy-dependencies</id>
+                  <phase>package</phase>
+                  <goals><goal>copy-dependencies</goal></goals>
+              </execution>
+          </executions>
+      </plugin>
+      <plugin>
+		  <groupId>io.hawt</groupId>
+		  <artifactId>hawtio-maven-plugin</artifactId>
+		  <version>1.4.64</version>
+		  <configuration>
+		    <port>8090</port>
+		  </configuration>
+		</plugin>
     </plugins>
   </build>
 
-  <groupId>com.dchdemo.isb.hub</groupId>
+  
 </project>
