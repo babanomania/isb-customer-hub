@@ -1,6 +1,8 @@
 package com.dchdemo.isb.hub.dynamics;
 
 import java.net.URI;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,6 +20,7 @@ import org.apache.http.impl.client.HttpClients;
 
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
+import com.microsoft.aad.adal4j.ClientAssertion;
 
 import net.minidev.json.JSONObject;
 
@@ -40,6 +43,8 @@ public class CRMUtil {
     private static String AUTHORITY;
     
     private static String accessToken;
+    private static String refreshToken;
+    private static Date expiresOn;
     
     static {
     	try {
@@ -50,9 +55,14 @@ public class CRMUtil {
     		USERNAME = crmConfig.getProperty("USERNAME");
     		PASSWORD = crmConfig.getProperty("PASSWORD");
     		AUTHORITY = crmConfig.getProperty("AUTHORITY");
-    		
-			accessToken = getAccessTokenFromUserCredentials().getAccessToken();
-			
+    		 
+    		synchronized (DYNAMICS_CONFIG) 
+    		{
+	    		AuthenticationResult authResult = getAccessTokenFromUserCredentials();
+				accessToken = authResult.getAccessToken();
+				refreshToken = authResult.getRefreshToken();
+				expiresOn = authResult.getExpiresOnDate();
+    		}
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -70,6 +80,7 @@ public class CRMUtil {
             service = Executors.newFixedThreadPool(1);
             context = new AuthenticationContext(AUTHORITY, false, service);
             Future<AuthenticationResult> future = context.acquireToken( RESOURCE, CLIENT_ID, USERNAME, PASSWORD, null);
+            
             result = future.get();
             
         } finally {
@@ -83,7 +94,46 @@ public class CRMUtil {
         return result;
     }
     
-    public static String getAccessToken(){
+    private static AuthenticationResult getAccessTokenFromRefreshToken() throws Exception {
+    	
+        AuthenticationContext context = null;
+        AuthenticationResult result = null;
+        ExecutorService service = null;
+        
+        try 
+        {
+            service = Executors.newFixedThreadPool(1);
+            context = new AuthenticationContext(AUTHORITY, false, service);
+            
+            //TODO - fix the below code
+            Future<AuthenticationResult> future = context.acquireTokenByRefreshToken( refreshToken, CLIENT_ID, null, RESOURCE, null  );
+            result = future.get();
+            
+        } finally {
+            service.shutdown();
+        }
+
+        if (result == null) {
+            throw new ServiceUnavailableException("authentication result was null");
+        }
+        
+        return result;
+    }
+    
+    public static String getAccessToken() throws Exception{
+    	
+    	Date now = new Date( GregorianCalendar.getInstance().getTimeInMillis() );
+    	if( now.after( expiresOn ) ){
+    		
+    		synchronized (DYNAMICS_CONFIG) {
+			
+	    		AuthenticationResult authResult = getAccessTokenFromRefreshToken();
+				accessToken = authResult.getAccessToken();
+				refreshToken = authResult.getRefreshToken();
+				expiresOn = authResult.getExpiresOnDate();	
+			}
+    	}
+    	
     	return accessToken;
     }
     
