@@ -116,7 +116,7 @@ public class MasterRouteBuilder extends RouteBuilder {
     
     private void customerDataSyncRoute( ServiceBusConfigs ctzConf ){
     	
-        rest("/sync/")
+        rest("/api/")
 	    	.put("customer")
 	        .to("direct:publish-customer");
     
