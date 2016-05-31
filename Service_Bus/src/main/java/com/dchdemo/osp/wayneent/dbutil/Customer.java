@@ -12,6 +12,7 @@ public class Customer {
 	private String email;
 	private String statementInEmail;
 	private String crmid;
+	private String cmsid;
 	
 	@XmlElement
 	public String getFirstName() {
@@ -59,5 +60,13 @@ public class Customer {
 	}
 	public void setCrmid(String crmid) {
 		this.crmid = crmid;
+	}
+	
+	@XmlElement
+	public String getCmsid() {
+		return cmsid;
+	}
+	public void setCmsid(String cmsid) {
+		this.cmsid = cmsid;
 	}
 }

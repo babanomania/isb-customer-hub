@@ -30,6 +30,7 @@ import org.apache.camel.ExchangePattern;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
+import org.apache.camel.http.common.HttpOperationFailedException;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.commons.lang3.StringUtils;
@@ -54,7 +55,6 @@ public class MasterRouteBuilder extends RouteBuilder {
     								)
     									.getConfig();
     	
-    	
     	ActiveMQComponent mqComponent = new ActiveMQComponent();
     	mqComponent.setBrokerURL( "vm://localhost?broker.persistent=false" );
     	getContext().addComponent("activemq", mqComponent);
@@ -64,6 +64,8 @@ public class MasterRouteBuilder extends RouteBuilder {
         staticContentRoute();
         
         getPolicyRoute(ctzConf);
+        
+        getCustomerRoute(ctzConf);
         
         customerDataSyncRoute(ctzConf);
         
@@ -112,6 +114,51 @@ public class MasterRouteBuilder extends RouteBuilder {
         	    
         	  }
         	});
+    }
+    
+    private void getCustomerRoute( ServiceBusConfigs ctzConf ){
+    	
+        //----- customer ----
+        
+        rest("/api/customer/")
+        	.get("{cmsId}")
+        	.to("direct:osp-router-customer");
+        	
+        from("direct:osp-router-customer")
+        	.doTry()
+        		.to("direct:acme-api-customer")
+        	.doCatch(HttpOperationFailedException.class)
+    			.marshal().json(JsonLibrary.Jackson)
+    			.to("direct:wayne-ent-api-customer")
+    		.endDoTry();
+        
+        from("direct:acme-api-customer")
+        	.setHeader(Exchange.HTTP_PATH, simple("/api/customer/${header.cmsId}"))
+        	.setHeader(Exchange.CONTENT_TYPE, simple( MediaType.APPLICATION_JSON ))
+        	.to( ctzConf.getAcmeUrl() + "?bridgeEndpoint=true&throwExceptionOnFailure=true")
+        	.unmarshal().json(JsonLibrary.Jackson, com.dchdemo.osp.acmeinc.dbutil.Customer.class)
+        	.convertBodyTo(Customer.class)
+        	.marshal().json(JsonLibrary.Jackson);
+        
+        try 
+        {
+			JAXBContext jcontext = JAXBContext.newInstance(com.dchdemo.osp.wayneent.dbutil.Customer.class);
+			JaxbDataFormat jdf = new JaxbDataFormat(jcontext);
+			
+
+	        from("direct:wayne-ent-api-customer")
+	    		.setHeader(Exchange.HTTP_PATH, simple("/api/customer/${header.cmsId}"))
+	    		.setHeader("Accept", constant(MediaType.APPLICATION_XML)) 
+	    		.to( ctzConf.getWayneEntUrl() + "?bridgeEndpoint=true&throwExceptionOnFailure=false")
+	    		.unmarshal(jdf)
+	    		.convertBodyTo(com.dchdemo.osp.wayneent.dbutil.Customer.class)
+	    		.marshal().json(JsonLibrary.Jackson)
+	    		.setHeader(Exchange.CONTENT_TYPE, constant(MediaType.APPLICATION_JSON) );
+			
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+        
     }
     
     private void customerDataSyncRoute( ServiceBusConfigs ctzConf ){
