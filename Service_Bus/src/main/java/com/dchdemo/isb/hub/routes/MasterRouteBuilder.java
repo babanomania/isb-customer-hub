@@ -168,14 +168,15 @@ public class MasterRouteBuilder extends RouteBuilder {
 	        .to("direct:publish-customer");
     
 	    from("direct:publish-customer")
-	        .to(ExchangePattern.InOnly, "activemq:topic:CUSTOMER_TOPIC");
+	        .to(ExchangePattern.InOnly, "activemq:topic:CUSTOMER_TOPIC")
+	        .transform().constant("OK");
     	
     	from("activemq:topic:CUSTOMER_TOPIC")
     		.multicast()
     		.to(	"direct:crm-customer-save-dynamics", 
     				"direct:osp-customer-save-acme", 
     				"direct:osp-customer-save-wayne"
-    			);
+    			);  	
 	   	 
 	   	 from("direct:crm-customer-save-dynamics")
 	    	.unmarshal().json(JsonLibrary.Jackson, Customer.class)
@@ -183,7 +184,7 @@ public class MasterRouteBuilder extends RouteBuilder {
 	       	.to("bean:accountsBeanFactory?method=save");
     	
     	from("direct:osp-customer-save-acme")
-	    	.setHeader(Exchange.HTTP_PATH, simple("/api/customer"))
+	    	.setHeader(Exchange.HTTP_PATH, simple("/api/customer/nosync"))
         	.setHeader(Exchange.CONTENT_TYPE, simple( MediaType.APPLICATION_JSON ))
         	.setHeader(Exchange.HTTP_METHOD, simple("POST"))
         	.to( ctzConf.getAcmeUrl() + "?bridgeEndpoint=true");
@@ -196,7 +197,7 @@ public class MasterRouteBuilder extends RouteBuilder {
 	    	from("direct:osp-customer-save-wayne")
 		    	.unmarshal().json(JsonLibrary.Jackson, com.dchdemo.osp.wayneent.dbutil.Customer.class)
 		    	.marshal(jdf)
-		    	.setHeader(Exchange.HTTP_PATH, simple("/api/customer"))
+		    	.setHeader(Exchange.HTTP_PATH, simple("/api/customer/nosync"))
 		    	.setHeader(Exchange.CONTENT_TYPE, simple( MediaType.APPLICATION_XML ))
 		    	.setHeader(Exchange.HTTP_METHOD, simple("POST"))
 		    	.to( ctzConf.getWayneEntUrl() + "?bridgeEndpoint=true");
